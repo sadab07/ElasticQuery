@@ -20,8 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.elastic.crud.model.StringForJson;
 import com.elastic.crud.model.Student;
 import com.elastic.crud.service.ElasticConnectService;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/student")
@@ -32,17 +36,48 @@ public class ElasticController
 	ElasticConnectService elasticService;
 	
 	@PostMapping("/enroll/{index}")
+	
 	public ResponseEntity<?> enrollStudent(@PathVariable String index,@RequestBody Student student,HttpSession httpSession)
+	//public ResponseEntity<?> enrollStudent(@PathVariable String index,@RequestBody StringForJson stringForJson,HttpSession httpSession)
 	{
+		
 		elasticService.addStudent(index,student,httpSession);
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("response", httpSession.getAttribute("response"));
-		map.put("status", true);
+			map.put("response", httpSession.getAttribute("response"));
+			map.put("status", true);
 		map.put("code", 200);
 		map.put("message", "successfully enrolled student");
-		return ResponseEntity.ok(map);
-	}
-	
+			return ResponseEntity.ok(map);
+		}	
+//		ObjectMapper mapper = new ObjectMapper();
+//		  String jsonString = "{\"name\":\"sadab\",\"gender\": \"male\",\"course\": \"elasticsearch\"}";
+//	    try{
+//	       StringForJson user = mapper.readValue(jsonString, StringForJson.class);
+//	      
+//	      jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
+//	      
+//	       System.err.println(jsonString);
+//	    }
+//	    catch (JsonParseException e) { 
+//	    	e.printStackTrace();
+//	    	}
+//	    catch (JsonMappingException e) {
+//	    	e.printStackTrace();
+//	    	}
+//	    catch (IOException e) {
+//	    	e.printStackTrace();
+//	    	}
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		map.put("response", httpSession.getAttribute("response"));
+//		map.put("status", true);
+//		map.put("code", 200);
+//		map.put("message", "successfully enrolled student");
+//		return ResponseEntity.ok(map);
+//	}
+//	
+
+
+		
 	@GetMapping("/view-student/{index}")
 	public ResponseEntity<?> getStudent(@PathVariable String index,HttpSession httpSession) throws IOException
 	{
@@ -116,4 +151,64 @@ public class ElasticController
 		map.put("message", "updated successfully with index : " + index);
 		return ResponseEntity.ok(map);
 	}
+	
+	@GetMapping("/aggregations/{index}")
+	public ResponseEntity<?> aggregationFun(@RequestParam String caseValue,@PathVariable String index)
+	{
+		Map<String, Object> map = new HashMap<String, Object>();
+			map.put("response", elasticService.aggregationFunctions(caseValue, index).getBody());
+			map.put("code", elasticService.aggregationFunctions(caseValue, index).getStatusCodeValue());
+			map.put("status", elasticService.aggregationFunctions(caseValue, index).getStatusCode());
+			map.put("message", "Got aggregation record successfully");
+			return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("/cardinality/{index}")
+	public ResponseEntity<?> cardinality()
+	{
+		Map<String, Object> map = new HashMap<String, Object>();
+		elasticService.cardinalityFunc();
+			map.put("response", elasticService.cardinalityFunc().getBody());
+			map.put("code", elasticService.cardinalityFunc().getStatusCodeValue());
+			map.put("status", elasticService.cardinalityFunc().getStatusCode());
+			map.put("message", "Got cardinality record successfully");
+			return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("/percentile/{index}")
+	public ResponseEntity<?> Percentile(@PathVariable String index)
+	{
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.percentile(index).getBody());
+		map.put("code", elasticService.percentile(index).getStatusCode());
+		map.put("status", elasticService.percentile(index).getStatusCode());
+		map.put("messeage","Got percentile successfully");
+			return ResponseEntity.ok(map);
+	
+		
+	}
+	
+	@GetMapping("/top-hits/{index}")
+	public ResponseEntity<?> topHitsFunc(@PathVariable String index)
+	{
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.topHits(index).getBody());
+		map.put("code", elasticService.topHits(index).getStatusCode());
+		map.put("status", elasticService.topHits(index).getStatusCode());
+		map.put("messeage","Got percentile successfully");
+			return ResponseEntity.ok(map);
+	}
+	
+	
+	@GetMapping("/filters/{index}")
+	public ResponseEntity<?> filterFunc(@PathVariable String index)
+	{
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.filterFunc(index).getBody());
+		map.put("code", elasticService.filterFunc(index).getStatusCode());
+		map.put("status", elasticService.filterFunc(index).getStatusCode());
+		map.put("messeage","Got filters data successfully");
+			return ResponseEntity.ok(map);
+	}
 }
+	
