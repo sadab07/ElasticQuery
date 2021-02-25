@@ -195,7 +195,7 @@ public class ElasticController
 		map.put("response", elasticService.topHits(index).getBody());
 		map.put("code", elasticService.topHits(index).getStatusCode());
 		map.put("status", elasticService.topHits(index).getStatusCode());
-		map.put("messeage","Got percentile successfully");
+		map.put("messeage","Got hits successfully");
 			return ResponseEntity.ok(map);
 	}
 	
@@ -210,5 +210,123 @@ public class ElasticController
 		map.put("messeage","Got filters data successfully");
 			return ResponseEntity.ok(map);
 	}
+	
+	@GetMapping("/date/{index}")
+	public ResponseEntity<?> DateAgg(@PathVariable String index) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.DateAgg(index));
+		map.put("code", elasticService.DateAgg(index).getStatusCode());
+		map.put("status", elasticService.DateAgg(index).getStatusCode());
+		map.put("message", "Got date successfully");
+
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("/ip/{index}")
+	public ResponseEntity<?> Iprange(@PathVariable String index) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.Iprange(index).getBody());
+		map.put("code", elasticService.Iprange(index).getStatusCode());
+		map.put("status", elasticService.Iprange(index).getStatusCode());
+		map.put("message", "Got Ip range successfully");
+
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("/histogram/{index}")
+	public ResponseEntity<?> histogram(@PathVariable String index) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.histogram(index).getBody());
+		map.put("code", elasticService.histogram(index).getStatusCode());
+		map.put("status", elasticService.histogram(index).getStatusCode());
+		map.put("message", "Got histogram range successfully");
+
+		return ResponseEntity.ok(map);
+	}
+	@GetMapping("/datehistogram/{index}")
+	public ResponseEntity<?> datehistogram(@PathVariable String index) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.datehistogram(index).getBody());
+		map.put("code", elasticService.datehistogram(index).getStatusCode());
+		map.put("status", elasticService.datehistogram(index).getStatusCode());
+		map.put("message", "Got histogram date successfully");
+
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("/geo/{index}")
+	public ResponseEntity<?> geodistance (@PathVariable String index){
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.geodistance(index).getBody());
+		map.put("code", elasticService.geodistance(index).getStatusCode());
+		map.put("status", elasticService.geodistance(index).getStatusCode());
+		map.put("message", "Got geo distance successfully");
+		return ResponseEntity.ok(map);
+	}
+	@GetMapping("/geogrid/{index}")
+	public ResponseEntity<?> geogrid (@PathVariable String index) throws IOException{
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("response", elasticService.geogrid(index).getBody());
+		map.put("code", elasticService.geogrid(index).getStatusCode());
+		map.put("status", elasticService.geogrid(index).getStatusCode());
+		map.put("message", "Got geo grid successfully");
+		return ResponseEntity.ok(map);
+	}
+		
+	@PutMapping("/createMapping")
+	public ResponseEntity<?> createMapping(@RequestBody String text)
+	{
+		Map< String, Object> map=new HashMap<String, Object>();
+		map.put("",elasticService.DemoinCreateMappingStatic(text));
+		return ResponseEntity.ok(map);
+	}
+	@GetMapping("/fieldmapping")
+	public ResponseEntity<?> CreateFiledMapping(@RequestBody String text)
+	{
+		Map< String, Object> map=new HashMap<String, Object>();
+		map.put("",elasticService.DemoinCreateFiledMapping(text));
+		return ResponseEntity.ok(map);
+	}
+	@PutMapping("/template")
+	public ResponseEntity<?> CreatetempalteStatic(@RequestBody String text)
+	{
+		Map< String, Object> map=new HashMap<String, Object>();
+		map.put("",elasticService.DemoinCreatetempalteStatic(text));
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("/scroll")
+	public ResponseEntity<?> scrollDemo() throws IOException
+	{
+		Map< String, Object> map=new HashMap<String, Object>();
+		map.put("",elasticService.scrollImplement().getBody());
+		return ResponseEntity.ok(map);
+	}
+	@GetMapping("/scrolls")
+	public ResponseEntity<?> scrollsDemo() throws IOException
+	{
+		Map< String, Object> map=new HashMap<String, Object>();
+		map.put("response",elasticService.scrollsImplement().getBody());
+		return ResponseEntity.ok(map);
+	}
+	
+	@GetMapping("/Analyzer")
+	public ResponseEntity<?> Analyzer() throws IOException {
+		
+		Map< String, Object> map=new HashMap<String, Object>();
+		map.put("response",elasticService.Analyzer());
+		return ResponseEntity.ok(map);
+	
+	}
+	
+	@GetMapping("/nested/{index}")
+	public ResponseEntity<?> nested(@PathVariable String index) throws IOException {
+		
+		Map< String, Object> map=new HashMap<String, Object>();
+		map.put("response",elasticService.NestedAggregation(index).getBody());
+		return ResponseEntity.ok(map);
+	
+	}
 }
+
 	
