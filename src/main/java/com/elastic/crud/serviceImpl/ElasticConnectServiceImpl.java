@@ -329,8 +329,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		return ResponseEntity.ok(map);
 	}
 
-	// ........................
-	// cardinalityFunc.................................................. //
+	// ....................... cardinalityFunc.................................................. //
 
 	public ResponseEntity<?> cardinalityFunc() {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -355,8 +354,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		return ResponseEntity.ok(map);
 	}
 
-	// ........................
-	// percentile.................................................. //
+	// ........................ percentile.................................................. //
 
 	public ResponseEntity<?> percentile(String index) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -388,8 +386,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 	}
 	// TODO Auto-generated method stub
 
-	// ........................
-	// topHits.................................................. //
+	// ........................ topHits.................................................. //
 
 	@Override
 	public ResponseEntity<?> topHits(String index) {
@@ -577,8 +574,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		return ResponseEntity.ok(map);
 	}
 
-	// ..................... date
-	// histogram..........................................//
+	// ..................... date histogram..........................................//
 
 	public ResponseEntity<?> datehistogram(String index) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -642,8 +638,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		return map;
 	}
 
-	// -------------!!!!!!!!!!!! Create field mapping
-	// ---------------------------------------!!!!!!!//
+	// -------------!!!!!!!!!!!! Create field mapping ---------------------------------------!!!!!!!//
 	@Override
 	public Map<String, Object> DemoinCreateFiledMapping(String text) {
 		JSONObject jsonObj = new JSONObject();
@@ -669,7 +664,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 	}
 
 	// <<<<<<<<<<<<<<<<<<<<<<<<<<<<< create template<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<//
-	@Override
+	  @Override
 	public Map<String, Object> DemoinCreatetempalteStatic(String text) {
 		JSONObject jsonObj = new JSONObject();
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -726,12 +721,10 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		return ResponseEntity.ok(map);
 	}
-
 	
-	//............................... GEOGRID..........................................// 
+	//.................................. GEOGRID..........................................// 
 	public ResponseEntity<?> geogrid(String index) throws IOException {
 		Map<String, Object> map = new HashMap<>();
 		SearchRequest requestgeogrid = new SearchRequest(index);
@@ -750,6 +743,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 	ParsedGeoGrid pgg = geo.get("geoagg");
 	System.err.println("pgg.getBuckets() : " + pgg.getBuckets());
 	List<Object> list = new ArrayList();
+	
 //	for (org.elasticsearch.search.aggregations.bucket.geogrid.GeoGrid.Bucket entry : pbr.getBuckets()) {
 //		String key = entry.getKeyAsString(); // key as String
 //		System.err.println("Key " + key);
@@ -764,6 +758,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 //		map.put("docCount", docCount);
 //	}
 //	map.put("list", list);
+	
 	GeoHashGridAggregationBuilder agg = response.getAggregations().get("geoagg");
 	
 	for (GeoGrid.Bucket entry : ((GeoGrid) agg).getBuckets()) {
@@ -778,7 +773,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 	
 	
 	
-	// ...........................Scroll..............................//
+	//...........................Scroll..............................//
 
 	@Override
 	public ResponseEntity<?> scrollImplement() throws IOException {
@@ -854,14 +849,24 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		try {
 			SearchResponse scrollResp = client.search(requestNested, RequestOptions.DEFAULT);
 			Nested agg = scrollResp.getAggregations().get("agg");
-			Terms name = agg.getAggregations().get("agg");
+			Terms name = agg.getAggregations().get("name");
 			map.put("count", agg.getDocCount());
 			ArrayList<Object> list = new ArrayList<>();
-			for(SearchHit e : scrollResp.getHits().getHits())
-			{
-				list.add(e.getSourceAsMap());
-				
+			
+			for (Terms.Bucket entry : name.getBuckets()) {
+				String key = entry.getKeyAsString(); // bucket key
+				long docCount = entry.getDocCount(); // Doc count
+			
+			    list.add("Key : " + key + " Count : " + docCount);
+			    
 			}
+//			for(SearchHit e : scrollResp.getHits().getHits())
+//			{
+//				
+//				list.add(e.getSourceAsMap());
+//				
+//			}
+			
 			map.put("response", list);
 //			for (Terms.Bucket bucket : name.getBuckets()) {
 //				ReverseNested resellerToProduct = bucket.getAggregations().get("OriginCityName");
@@ -873,6 +878,8 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		}
 		return ResponseEntity.ok(map);	
 	}
+	
+
 	// ........................ matchSearch.................................................. //
 
 	public List<Student> matchSearch(HttpSession httpSession) {
