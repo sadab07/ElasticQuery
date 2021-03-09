@@ -10,17 +10,18 @@ import java.util.Map;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGrid;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGrid.*;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoHashGridAggregationBuilder;
-
 import javax.servlet.http.HttpSession;
 //import org.elasticsearch.search.aggregations.bucket.geogrid.GeoHashGrid;
 import org.elasticsearch.search.aggregations.bucket.filter.Filters;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator;
 import org.elasticsearch.search.aggregations.bucket.geogrid.ParsedGeoGrid;
+import org.elasticsearch.search.aggregations.bucket.geogrid.ParsedGeoHashGrid;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.ParsedDateHistogram;
 import org.elasticsearch.search.aggregations.bucket.histogram.ParsedHistogram;
 import org.elasticsearch.search.aggregations.bucket.nested.Nested;
+import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.nested.ReverseNested;
 import org.elasticsearch.search.aggregations.bucket.range.ParsedBinaryRange;
 import org.elasticsearch.search.aggregations.bucket.range.ParsedDateRange;
@@ -80,10 +81,13 @@ import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.TopHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import com.elastic.crud.config.ElasticConfig;
 import com.elastic.crud.model.Student;
 import com.elastic.crud.service.ElasticConnectService;
@@ -329,14 +333,15 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		return ResponseEntity.ok(map);
 	}
 
-	// ....................... cardinalityFunc.................................................. //
+	// .......................
+	// cardinalityFunc.................................................. //
 
 	public ResponseEntity<?> cardinalityFunc() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		SearchSourceBuilder builderCar = new SearchSourceBuilder();
-		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("aggCar").field("Age");
+		CardinalityAggregationBuilder aggregation = AggregationBuilders.cardinality("aggCar").field("age");
 
-		SearchRequest requestCar = new SearchRequest("sa");
+		SearchRequest requestCar = new SearchRequest("sadab2");
 		requestCar.source(builderCar);
 
 		builderCar.aggregation(aggregation);
@@ -354,7 +359,8 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		return ResponseEntity.ok(map);
 	}
 
-	// ........................ percentile.................................................. //
+	// ........................
+	// percentile.................................................. //
 
 	public ResponseEntity<?> percentile(String index) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -386,14 +392,15 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 	}
 	// TODO Auto-generated method stub
 
-	// ........................ topHits.................................................. //
+	// ........................
+	// topHits.................................................. //
 
 	@Override
 	public ResponseEntity<?> topHits(String index) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		SearchRequest requestHits = new SearchRequest(index);
 		SearchSourceBuilder builderHits = new SearchSourceBuilder();
-		AggregationBuilder aggregationHits = AggregationBuilders.terms("aggHits").field("Age")
+		AggregationBuilder aggregationHits = AggregationBuilders.terms("aggHits").field("age")
 				.subAggregation(AggregationBuilders.topHits("top"));
 		builderHits.aggregation(aggregationHits);
 		requestHits.source(builderHits);
@@ -432,7 +439,8 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 
 	}
 
-	// ...................... filterFunc.................................................. //
+	// ......................
+	// filterFunc.................................................. //
 
 	public ResponseEntity<?> filterFunc(String index) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -552,8 +560,8 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		try {
 			SearchResponse response = client.search(requesthistogram, RequestOptions.DEFAULT);
 			Aggregations histogram = response.getAggregations();
-			ParsedHistogram pbr = histogram.get("histoagg");    
-		
+			ParsedHistogram pbr = histogram.get("histoagg");
+
 			List<Object> list = new ArrayList();
 			// For each entry
 			for (org.elasticsearch.search.aggregations.bucket.histogram.Histogram.Bucket entry : pbr.getBuckets()) {
@@ -645,7 +653,6 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		ObjectMapper om = new ObjectMapper();
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
-
 			GetFieldMappingsRequest request = new GetFieldMappingsRequest();
 			request.indices("sadb1");
 			// request.fields("age");
@@ -664,7 +671,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 	}
 
 	// <<<<<<<<<<<<<<<<<<<<<<<<<<<<< create template<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<//
-	  @Override
+	@Override
 	public Map<String, Object> DemoinCreatetempalteStatic(String text) {
 		JSONObject jsonObj = new JSONObject();
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -723,27 +730,24 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		}
 		return ResponseEntity.ok(map);
 	}
-	
-	//.................................. GEOGRID..........................................// 
+
+	// .................................. GEOGRID..........................................//
 	public ResponseEntity<?> geogrid(String index) throws IOException {
 		Map<String, Object> map = new HashMap<>();
 		SearchRequest requestgeogrid = new SearchRequest(index);
 		SearchSourceBuilder buildergeogrid = new SearchSourceBuilder();
-	AggregationBuilder aggregation =
-	        AggregationBuilders
-	                .geohashGrid("geoagg")
-	                .field("location.location")
-	                .precision(4);
-	
-	buildergeogrid.aggregation(aggregation);
-	requestgeogrid.source(buildergeogrid);
-	
-	SearchResponse response = client.search(requestgeogrid, RequestOptions.DEFAULT);
-	Aggregations geo = response.getAggregations();
-	ParsedGeoGrid pgg = geo.get("geoagg");
-	System.err.println("pgg.getBuckets() : " + pgg.getBuckets());
-	List<Object> list = new ArrayList();
-	
+		AggregationBuilder aggregation = AggregationBuilders.geohashGrid("geoagg").field("location.location")
+				.precision(4);
+
+		buildergeogrid.aggregation(aggregation);
+		requestgeogrid.source(buildergeogrid);
+
+		SearchResponse response = client.search(requestgeogrid, RequestOptions.DEFAULT);
+		Aggregations geo = response.getAggregations();
+		ParsedGeoHashGrid pgg = geo.get("geoagg");
+		System.err.println("pgg.getBuckets() : " + pgg.getBuckets());
+		List<Object> list = new ArrayList();
+
 //	for (org.elasticsearch.search.aggregations.bucket.geogrid.GeoGrid.Bucket entry : pbr.getBuckets()) {
 //		String key = entry.getKeyAsString(); // key as String
 //		System.err.println("Key " + key);
@@ -758,22 +762,19 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 //		map.put("docCount", docCount);
 //	}
 //	map.put("list", list);
-	
-	GeoHashGridAggregationBuilder agg = response.getAggregations().get("geoagg");
-	
-	for (GeoGrid.Bucket entry : ((GeoGrid) agg).getBuckets()) {
-	    String keyAsString = entry.getKeyAsString(); // key as String
-	    GeoPoint key = (GeoPoint) entry.getKey();    // key as geo point
-	    long docCount = entry.getDocCount();
-	    System.err.println(docCount + " " + keyAsString + " " + key);
-	}
-	return ResponseEntity.ok(map);
+
+		GeoHashGridAggregationBuilder agg = response.getAggregations().get("geoagg");
+
+		for (GeoGrid.Bucket entry : ((GeoGrid) agg).getBuckets()) {
+			String keyAsString = entry.getKeyAsString(); // key as String
+			GeoPoint key = (GeoPoint) entry.getKey(); // key as geo point
+			long docCount = entry.getDocCount();
+			System.err.println(docCount + " " + keyAsString + " " + key);
+		}
+		return ResponseEntity.ok(map);
 	}
 
-	
-	
-	
-	//...........................Scroll..............................//
+	// ...........................Scroll..............................//
 
 	@Override
 	public ResponseEntity<?> scrollImplement() throws IOException {
@@ -839,26 +840,28 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 		Map<String, Object> map = new HashMap<>();
 		SearchRequest requestNested = new SearchRequest(index);
 		SearchSourceBuilder builderNested = new SearchSourceBuilder();
-		AggregationBuilder aggregation = AggregationBuilders.nested("agg", "name")
-		.subAggregation(AggregationBuilders.ipRange("agg").field("ip").addRange("10.1.1.10", "10.1.1.160"));
-	//.subAggregation(AggregationBuilders.dateRange("dagg").field("bdate").format("yyyy-MM-dd||dd-MM-yyyy")	
-	//		.addRange("1996-12-12", "12-12-1996"));
+		NestedAggregationBuilder aggregation = AggregationBuilders.nested("agg", "name").subAggregation(
+				AggregationBuilders.ipRange("agg").field("ip").addRange("ipKey", "10.1.1.10", "10.1.1.160"));
+		// .subAggregation(AggregationBuilders.dateRange("dagg").field("bdate").format("yyyy-MM-dd||dd-MM-yyyy")
+		// .addRange("1996-12-12", "12-12-1996"));
 		builderNested.aggregation(aggregation);
 		requestNested.source(builderNested);
-		 
+
 		try {
 			SearchResponse scrollResp = client.search(requestNested, RequestOptions.DEFAULT);
-			Nested agg = scrollResp.getAggregations().get("agg");
-			Terms name = agg.getAggregations().get("name");
-			map.put("count", agg.getDocCount());
+//			Nested agg = scrollResp.getAggregations().get("agg");
+			Aggregations aggregations = scrollResp.getAggregations();
+//			Terms name = agg.getAggregations().get("name");
+			ParsedBinaryRange agg = aggregations.get("agg");
+//			map.put("count", agg.getDocCount());
 			ArrayList<Object> list = new ArrayList<>();
-			
-			for (Terms.Bucket entry : name.getBuckets()) {
+//			System.err.println(agg.getAggregations().get("name"));
+			for (Bucket entry : agg.getBuckets()) {
 				String key = entry.getKeyAsString(); // bucket key
 				long docCount = entry.getDocCount(); // Doc count
-			
-			    list.add("Key : " + key + " Count : " + docCount);
-			    
+
+				list.add("Key : " + key + " Count : " + docCount);
+
 			}
 //			for(SearchHit e : scrollResp.getHits().getHits())
 //			{
@@ -866,7 +869,7 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 //				list.add(e.getSourceAsMap());
 //				
 //			}
-			
+
 			map.put("response", list);
 //			for (Terms.Bucket bucket : name.getBuckets()) {
 //				ReverseNested resellerToProduct = bucket.getAggregations().get("OriginCityName");
@@ -876,12 +879,65 @@ public class ElasticConnectServiceImpl implements ElasticConnectService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return ResponseEntity.ok(map);	
+		return ResponseEntity.ok(map);
+	}
+
+	// ..................................Global agg..........................................//
+	public ResponseEntity<?> globalAggregation() throws IOException {
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		List<SearchHit> list = new LinkedList<SearchHit>();
+		SearchRequest searchRequest = new SearchRequest("jay");
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		searchRequest.source(searchSourceBuilder);
+
+//		AggregationBuilders.global("globalAgg").subAggregation(AggregationBuilders.terms("22").field("age"));
+		// sr.getAggregations();
+
+		searchSourceBuilder.aggregation(
+				AggregationBuilders.global("gender").subAggregation(AggregationBuilders.terms("22").field("age")));
+
+		SearchResponse sr = client.search(searchRequest, RequestOptions.DEFAULT);
+		Aggregations agg = sr.getAggregations();
+
+//		ParsedGlobal pg = agg.get("globalAgg");
+//		ParsedBinaryRange terms=sr.getAggregations();
+//		pg.getDocCount();
+//		for(SearchHit s : sr.getHits().getHits()) {
+//			list.add(s);
+//		}
+
+		System.out.println();
+		return ResponseEntity.ok(sr.getAggregations());
 	}
 	
+	
+	//......................PAggination and Sorting.................................//
+	
+	
+	 public ResponseEntity<?> getAllByPaggination(Integer from,String id) throws IOException {
+
+         SearchResponse response = client.search(new SearchRequest("sadab2")
+                   .source(new SearchSourceBuilder()
+                           .from(from)
+                           .size(Integer.valueOf(id))
+                           .sort(SortBuilders.fieldSort("age").order(SortOrder.ASC))),RequestOptions.DEFAULT);
+         return ResponseEntity.ok(getsearchResult(response));
+
+   }
+	public List<Map<String, Object>> getsearchResult(SearchResponse response) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        SearchHit[] searchHits = response.getHits().getHits();
+
+    List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+
+    for (SearchHit hit : searchHits) {
+        list.add(objectMapper.convertValue(hit.getSourceAsMap(), Map.class));
+    }
+
+    return list;
+}
 
 	// ........................ matchSearch.................................................. //
-
 	public List<Student> matchSearch(HttpSession httpSession) {
 		MultiSearchRequest request = new MultiSearchRequest();
 		SearchRequest firstSearchRequest = new SearchRequest("jay");

@@ -11,6 +11,7 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.indices.AnalyzeResponse;
 import org.elasticsearch.client.indices.AnalyzeResponse.AnalyzeToken;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.elastic.crud.model.StringForJson;
 import com.elastic.crud.model.Student;
@@ -65,4 +66,8 @@ public interface ElasticConnectService {
 	public ResponseEntity<?> NestedAggregation(String index);
 	
 	public ResponseEntity<?> geogrid(String index) throws IOException;
-}
+
+	public ResponseEntity<?> globalAggregation() throws IOException;
+	
+    public ResponseEntity<?> getAllByPaggination( Integer from, String id) throws IOException ;
+    }
